@@ -7,7 +7,7 @@ function App() {
   return (
     <Router>
       <div className="container mt-4">
-        <h2 className="text-center mb-4">Add ur Data</h2>
+        <h2 className="text-center mb-4">Add ur Id</h2>
 
         <Routes>
           <Route path="/" element={<UserList />} />

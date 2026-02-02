@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { getUsers, deleteUser } from "../Services/api";
 import { Link } from "react-router-dom";
-import { MdEdit } from "react-icons/md";
-import { MdDelete } from "react-icons/md";
+import { MdEdit, MdDelete } from "react-icons/md";
 import { IoIosPersonAdd } from "react-icons/io";
-
-
-
 
 function UserList() {
   const [users, setUsers] = useState([]);
 
   const fetchUsers = async () => {
-    const res = await getUsers();
-    setUsers(res.data);
+    try {
+      const res = await getUsers();
+ 
+      setUsers(Array.isArray(res.data) ? res.data : []);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      setUsers([]);
+    }
   };
 
   useEffect(() => {
@@ -21,14 +23,23 @@ function UserList() {
   }, []);
 
   const handleDelete = async (id) => {
-    await deleteUser(id);
-    fetchUsers(); 
+    try {
+      await deleteUser(id);
+      fetchUsers();
+    } catch (error) {
+      console.error("Error deleting user:", error);
+    }
   };
 
   return (
     <>
-      <Link to="/add" className="btn btn-primary mb-3 d-flex align-items-center gap-2 " style={{width:"fit-content"}}>
-        <IoIosPersonAdd size={20}/> Add User
+      <Link
+        to="/add"
+        className="btn btn-primary mb-3 d-flex align-items-center gap-2"
+        style={{ width: "fit-content" }}
+      >
+        <IoIosPersonAdd size={20} />
+        Add User
       </Link>
 
       <table className="table table-bordered text-center">
@@ -41,26 +52,35 @@ function UserList() {
         </thead>
 
         <tbody>
-          {users.map((user) => (
-            <tr key={user.id}>
-              <td>{user.name}</td>
-              <td>{user.email}</td>
-              <td>
-                <Link
-                  to={`/edit/${user.id}`}
-                  className="btn text-success"
-                >
-                  <MdEdit data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"/>
-                </Link>
-                <button
-                  onClick={() => handleDelete(user.id)}
-                  className="btn text-danger"
-                >
-                    <MdDelete data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"/>
-                </button>
+          {users.length > 0 ? (
+            users.map((user) => (
+              <tr key={user.id}>
+                <td>{user.name}</td>
+                <td>{user.email}</td>
+                <td>
+                  <Link
+                    to={`/edit/${user.id}`}
+                    className="btn text-success"
+                  >
+                    <MdEdit title="Edit" />
+                  </Link>
+
+                  <button
+                    onClick={() => handleDelete(user.id)}
+                    className="btn text-danger"
+                  >
+                    <MdDelete title="Delete" />
+                  </button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="3" className="text-muted">
+                No users found
               </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
     </>
